@@ -3,3 +3,9 @@ uvicorn
 numpy
 pandas
 manim
+cloudinary
+groq
+dotenv
+openai
+glob2
+huggingface_hub

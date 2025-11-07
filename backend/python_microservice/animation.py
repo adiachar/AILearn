@@ -1,72 +1,49 @@
-
 from manim import *
+import random
 
-class IntroductionToNeuralNetwork(Scene):
+class MyScene(Scene):
     def construct(self):
-        # Animating the nodes
-        nodes = VGroup(*[Circle(radius=0.1, color=WHITE) for _ in range(10)])
-        nodes.set_fill(opacity=0)
-        self.add(nodes)
-        self.play(AnimationGroup(*[FadeIn(node) for node in nodes], lag_ratio=0.1, run_time=2))
-        self.wait(0.5)
+        title = Text("What is Machine Learning?", font_size=48).to_edge(UP)
+        data_points = VGroup(*[Circle(radius=0.2).set_color(BLUE).move_to(LEFT*2 + UP*2 + RIGHT*random.uniform(-1, 1) + DOWN*random.uniform(-1, 1)) for _ in range(10)]).add(*[Square(side_length=0.4).set_color(RED).move_to(RIGHT*2 + UP*2 + RIGHT*random.uniform(-1, 1) + DOWN*random.uniform(-1, 1)) for _ in range(10)])
+        model_line = Line(LEFT*3, RIGHT*3).set_color(GREEN).shift(DOWN*0.5)
+        decision_text = Text("Decision Boundary", font_size=24).next_to(model_line, DOWN)
 
-        # Narrator voiceover and transition to brain diagram
-        text = Text("Imagine a network of interconnected nodes, each node processing and transmitting information to others.").scale(1.2)
-        self.play(text.animate.shift(UP * 3))
+        self.play(Write(title))
         self.wait(0.5)
-        self.play(FadeOut(nodes), FadeOut(text), run_time=0.5)
-        brain_diagram = SVGMobject("brain_diagram.svg").scale(0.6).set_opacity(0.8)
-        self.play(FadeIn(brain_diagram), run_time=2)
+        self.play(LaggedStart(*[FadeIn(point) for point in data_points], lag_ratio=0.1))
+        self.wait(1)
 
-        # Narrator voiceover and transition to simple neural network diagram
-        text = Text("Inspired by the human brain, neural networks are a type of machine learning model that consists of multiple layers of interconnected nodes or 'neurons.'").scale(1.2)
-        self.play(text.animate.shift(DOWN * 3), brain_diagram.animate.shift(DOWN * 3))
-        self.wait(0.5)
-        self.play(FadeOut(text), run_time=0.5)
-        simple_neural_network = VGroup(
-            VGroup(
-                Rectangle(width=2, height=1, color=WHITE),
-                Line(UP * 2, DOWN * 2, color=WHITE)
-            ).to_edge(LEFT),
-            VGroup(
-                Rectangle(width=2, height=1, color=WHITE),
-                Line(UP * 2, DOWN * 2, color=WHITE)
-            ).next_to(VGroup(Rectangle(width=2, height=1, color=WHITE), Line(UP * 2, DOWN * 2, color=WHITE)), RIGHT),
-            VGroup(
-                Rectangle(width=2, height=1, color=WHITE),
-                Line(UP * 2, DOWN * 2, color=WHITE)
-            ).to_edge(RIGHT)
-        )
-        self.play(FadeIn(simple_neural_network), run_time=2)
+        self.play(Create(model_line), Write(decision_text))
+        self.wait(1)
 
-        # Narrator voiceover and transition to neural network in action
-        text = Text("Each node receives one or more inputs, performs a computation, and sends the output to one or more other nodes. This layered structure allows the network to learn complex patterns and relationships.").scale(1.2)
-        self.play(text.animate.shift(DOWN * 3), simple_neural_network.animate.shift(DOWN * 3))
-        self.wait(0.5)
-        self.play(FadeOut(text), run_time=0.5)
-        self.play(simple_neural_network.animate.to_edge(UP), run_time=1)
+        new_line = Line(LEFT*3 + UP*1, RIGHT*3 - UP*1).set_color(GREEN)
+        self.play(Transform(model_line, new_line))
+        self.wait(1)
 
-        # Narrator voiceover and transition to neural network applications
-        neural_network_application = VGroup(
-            Rectangle(width=4, height=2, color=WHITE).shift(LEFT * 2),
-            Rectangle(width=2, height=1, color=WHITE).next_to(Rectangle(width=4, height=2, color=WHITE), LEFT),
-            Rectangle(width=2, height=1, color=WHITE).next_to(Rectangle(width=2, height=1, color=WHITE), DOWN)
-        )
-        text = Text("Neural networks have revolutionized many fields, including computer vision, natural language processing, and speech recognition.").scale(1.2)
-        self.play(FadeIn(neural_network_application), text.animate.shift(UP * 3))
-        self.wait(0.5)
-        self.play(FadeOut(text), run_time=0.5)
-        self.play(FadeOut(neural_network_application), run_time=1)
+        training_text = Text("Training Process", font_size=36).to_edge(UP)
+        self.play(Transform(title, training_text))
 
-        # Narrator voiceover and closing shot
-        self.play(FadeOut(simple_neural_network), run_time=1)
-        text = Text("In summary, neural networks are a powerful tool for machine learning, inspired by the human brain and capable of processing complex information.").scale(1.2)
-        self.play(text.animate.shift(DOWN * 3))
-        end_screen = Text("Neural Network Basics").scale(1.5).shift(UP * 2.5)
-        self.play(FadeIn(end_screen), text.animate.shift(DOWN * 2))
+        value = ValueTracker(0)
+        update_line = always_redraw(lambda: Line(LEFT*3 + (value.get_value() - 0.5)*UP, RIGHT*3 - (value.get_value() - 0.5)*UP).set_color(GREEN))
+        self.play(Transform(model_line, update_line))
+
+        for angle in [25, 20, 15, 12, 10]:
+            value.set_value(angle/10)
+            self.wait(0.5)
+
+        ml_concepts = VGroup(
+            Text("Supervised Learning", font_size=24),
+            Text("Neural Networks", font_size=24),
+            Text("Loss Minimization", font_size=24)
+        ).arrange(DOWN, aligned_edge=LEFT, buff=0.5).next_to(model_line, UP, buff=1)
+
+        self.play(FadeIn(ml_concepts))
         self.wait(2)
+        self.play(FadeOut(model_line), FadeOut(decision_text), ml_concepts.animate.shift(DOWN*2))
 
-        # Fade to black
-        self.play(FadeOut(VGroup(text, end_screen, brain_diagram, simple_neural_network, neural_network_application, self.camera.frame)), run_time=2)
+        final_text = Text("Machine Learning = Patterns in Data + Optimization", font_size=32).set_color(YELLOW).shift(UP*0.5)
+        self.play(Write(final_text))
+        self.wait(3)
 
-EXECUTABLE_SCENE = "IntroductionToNeuralNetwork"
+scene = MyScene()
+scene.render()
