@@ -44,12 +44,12 @@ def get_video_description(content):
         stream=True,
         stop=None
     )
-    desctiption = ''
+    description = ''
     for chunk in completion:
         if chunk.choices[0].delta.content:
-            desctiption += chunk.choices[0].delta.content
+            description += chunk.choices[0].delta.content
     
-    return desctiption
+    return description
 
 
 def get_video_code(video_description):
@@ -104,71 +104,79 @@ def get_video_code(video_description):
     code = code.replace('```python', '').replace('```', '').strip()
     return code
 
+no_of_tries = 0
 
 def generate_video_scene(scene_description):
     print("🎬 Generating video for scene description:", scene_description)
-    description = get_video_description(scene_description)
-    print("📝 Generated description:\n", description)
-    code = get_video_code(scene_description)
-    print("📝 Generated code:\n", code)
-    if not code:
-        return None
 
-    with tempfile.TemporaryDirectory() as tempdir:
-        config.media_dir = tempdir
-        code_path = os.path.join(tempdir, "scene.py") # for getting the full path of script.py file inside this temporary directory.
-        
-        with open(code_path, "w") as code_file:
-            code_file.write(code)
+    for attempt in range(2):
+        code = get_video_code(scene_description)
 
-        try:
-            # Exucuting this in subprocess because the code may have malwares which may delete files or folders in the current process.
-            result = subprocess.run(
-                [
-                    "manim",
-                    code_path,
-                    'MyScene',
-                    "-ql",              # quick low-quality render
-                    "-o", 
-                    "output.mp4"
-                ],
-                cwd=tempdir,
-                capture_output=True,
-                text=True,
-                timeout=120
-            )
-
-            if result.returncode != 0:
-                print("❌ Rendering error:")
-                print(result.stderr)
-                return None
-            
-            possible_videos = glob.glob(os.path.join(tempdir, "**", "output.mp4"), recursive=True)
-            if possible_videos:
-                video_path = possible_videos[0]
-
-
-            if os.path.exists(video_path):
-                print("✅ Render complete:", video_path)
-                upload_result = cloudinary.uploader.upload(video_path, resource_type="video")
-                print("☁️ Upload complete:", upload_result["secure_url"])
-                return {"video_url": upload_result["secure_url"], "description": description}
-            
-            else:
-                print("⚠️ Video file not found after rendering.")
-                return None
-
-        except subprocess.TimeoutExpired:
-            print("⏱️ Rendering timed out.")
+        if not code:
             return None
 
+        with tempfile.TemporaryDirectory() as tempdir:
+            config.media_dir = tempdir
+            code_path = os.path.join(tempdir, "scene.py") # for getting the full path of script.py file inside this temporary directory.
+            
+            with open(code_path, "w") as code_file:
+                code_file.write(code)
+
+            try:
+                # Exucuting this in subprocess because the code may have malwares which may delete files or folders in the current process.
+                result = subprocess.run(
+                    [
+                        "manim",
+                        code_path,
+                        'MyScene',
+                        "-ql",              # quick low-quality render
+                        "-o", 
+                        "output.mp4"
+                    ],
+                    cwd=tempdir,
+                    capture_output=True,
+                    text=True,
+                    timeout=120
+                )
+
+                if result.returncode != 0:
+                    print("❌ Rendering error:")
+                    print(result.stderr)
+                    print("-----------------------------------------------------------------------------------------------")
+                    print("Trying Again...")
+                    continue
+                
+
+                possible_videos = glob.glob(os.path.join(tempdir, "**", "output.mp4"), recursive=True)
+                if possible_videos:
+                    video_path = possible_videos[0]
+
+
+                if os.path.exists(video_path):
+                    print("Render complete:", video_path)
+                    upload_result = cloudinary.uploader.upload(video_path, resource_type="video")
+                    print("Upload complete:", upload_result["secure_url"])
+                    print("Generating video description...")
+                    description = get_video_description(scene_description)
+                    return {"videoUrl": upload_result["secure_url"], "description": description}
+                
+                else:
+                    print("Video file not found after rendering.")
+                    return None
+
+            except subprocess.TimeoutExpired:
+                print("⏱️ Rendering timed out.")
+                return None
+    
+    return None
+
 class Body(BaseModel):
-    scene: str = 'Hello'
+    content: str = 'Hello'
 
 @app.post("/generate_video")
 async def generate_video_endpoint(body: Body):
     loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, generate_video_scene, body.scene)
+    result = await loop.run_in_executor(None, generate_video_scene, body.content)
 
     if not result:
         return JSONResponse({"message": "Request failed!"}, status_code=400)
