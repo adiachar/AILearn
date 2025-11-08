@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import Sidebar from './ASideBar.jsx'
+import Sidebar from './NoBar.jsx'
 import CreateVideo from './CreateVideo.jsx'
 import Chat from './Chat.jsx'
 import Library from './Library.jsx'
