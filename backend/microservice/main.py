@@ -109,7 +109,7 @@ no_of_tries = 0
 def generate_video_scene(scene_description):
     print("🎬 Generating video for scene description:", scene_description)
 
-    for attempt in range(2):
+    for attempt in range(3):
         code = get_video_code(scene_description)
 
         if not code:
@@ -129,7 +129,7 @@ def generate_video_scene(scene_description):
                         "manim",
                         code_path,
                         'MyScene',
-                        "-ql",              # quick low-quality render
+                        "-ql",
                         "-o", 
                         "output.mp4"
                     ],
