@@ -7,7 +7,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 4000 
 
 app.use(cors())
 app.use(express.json())
@@ -17,6 +17,6 @@ app.use('/api/ai/', aiVideoGenerationRouter)
 app.use('/api/auth', authenticationRouter)
 
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
     console.log(`Server is running in the port ${PORT}`)
 })
