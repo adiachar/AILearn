@@ -173,7 +173,7 @@ def generate_video_scene(scene_description):
 class Body(BaseModel):
     content: str = 'Hello'
 
-@app.post("/generate_video")
+@app.post("/generate-video")
 async def generate_video_endpoint(body: Body):
     loop = asyncio.get_event_loop()
     result = await loop.run_in_executor(None, generate_video_scene, body.content)

@@ -4,7 +4,7 @@ import axios from 'axios'
 export const generateVideo = async (req, res) => {
     try {
         const {content} = req.body
-        const response = await axios.post(process.env.AI_MICROSERVICE_API, {content})
+        const response = await axios.post(`${process.env.AI_MICROSERVICE_API}/generate-video`, {content})
 
         if(response.status = 200) {
             return res.status(200).json({videoUrl: response.data.videoUrl, description: response.data.description})
