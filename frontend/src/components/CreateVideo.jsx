@@ -76,13 +76,12 @@ export default function CreateVideo() {
   }, [loading])
 
   return (
-    <div className='h-full flex-1 p-10 text-gray-300 overflow-auto'>
+    <div className='h-full p-6 lg:p-10 text-gray-300 overflow-auto'>
       <h2 className="text-2xl font-semibold mb-4">Create Explanation Video</h2>
       <p className="text-gray-400 mb-6">Enter a topic or concept, and AI will generate both an animated explanation video and detailed text explanation</p>
-      <div className="w-full flex gap-3 flex-col lg:flex-row md:flex-row">
-        <div className='left'>
-          <div className="w-full mx-auto bg-[#15171c] p-8 rounded-xl flex flex-col gap-4 border border-gray-800">
-
+      <div className="w-full flex gap-6 flex-col lg:flex-row md:flex-row">
+        <div className='left w-full lg:w-1/2'>
+          <div className="w-full mx-auto bg-[#15171c] p-8 rounded-xl flex flex-col flex-wrap gap-4 border border-gray-800">
             <label className="block font-medium text-lg" htmlFor="topic">
               Topic or Concept
               <input
@@ -110,7 +109,7 @@ export default function CreateVideo() {
             {!loading ? 'Generate Explanation' : 
               <div className='flex justify-center items-center gap-3 animate-pulse'>
                 Generating...
-                <div class="w-5 h-5 rounded-full border-4 border-t-transparent border-gray-300 animate-spin"></div>
+                <div className="w-5 h-5 rounded-full border-4 border-t-transparent border-gray-300 animate-spin"></div>
               </div>}
             </button>
           </div>
@@ -119,11 +118,11 @@ export default function CreateVideo() {
             {aiResponse && aiResponse.videoUrl ? <video
               src={aiResponse.videoUrl}
               controls
-              className="max-w-full rounded-2xlborder-violet-700/50"
+              className="w-full rounded-2xl"
             >
               Your browser does not support the video tag.
             </video> :
-              <div className='w-full min-h-80 bg-black flex items-center justify-center'>
+              <div className='w-full min-h-80 p-6 bg-black flex items-center justify-center rounded-2xl'>
                 {!loading ? <h1 className='text-gray-500'>AI Generated Explanation Video will appear here...</h1> : <h1 className='animate-pulse text-gray-500'>{dummyLoadingText}</h1>}
               </div>}
             <div className='p-4 bg-[#0e0e11] rounded'>
@@ -132,7 +131,7 @@ export default function CreateVideo() {
           </div>
         </div>
 
-        <div className="right max-w-1/2 px-6 text-gray-300 flex flex-col gap-5">
+        <div className="right w-full lg:w-1/2 text-gray-300 flex flex-col gap-5">
           <div className="text-center bg-[#15171c] p-6 rounded-xl border border-gray-800">
             <h2 className="text-3xl font-bold mb-4">
               About Our Platform
@@ -145,7 +144,7 @@ export default function CreateVideo() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 bg-[#15171c] rounded border border-gray-800 p-6">
+          <div className="flex flex-col gap-3 bg-[#15171c] rounded-2xl border border-gray-800 p-6">
             {/* Step 1 */}
             <div className="p-8 rounded-2xl hover:bg-black transition border border-gray-800 flex flex-col">
               <div className='flex gap-3 items-center'>

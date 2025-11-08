@@ -1,4 +1,3 @@
-import express from 'express'
 import axios from 'axios'
 
 export const generateVideo = async (req, res) => {
