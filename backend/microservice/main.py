@@ -3,6 +3,7 @@ import cloudinary.uploader
 from manim import *
 import tempfile
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from groq import Groq
 from dotenv import load_dotenv
@@ -16,6 +17,16 @@ import glob
 load_dotenv()
 
 app = FastAPI()
+
+origins = ["http://localhost:4000", os.getenv("SERVER_URL")]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 cloudinary.config(
   cloud_name=os.getenv("CLOUDINARY_NAME"),
@@ -103,8 +114,6 @@ def get_video_code(video_description):
     code = code[start: end]
     code = code.replace('```python', '').replace('```', '').strip()
     return code
-
-no_of_tries = 0
 
 def generate_video_scene(scene_description):
     print("🎬 Generating video for scene description:", scene_description)
